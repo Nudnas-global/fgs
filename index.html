@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Step-by-step workflow for the final examination of MSc, MPhil and PhD research degree candidates, with flagged ambiguities and suggested fixes.">
+<title>Research Degree Final Examination Workflow</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one vertical flow spine per stage; decisions fan out into side-by-side branch columns; register below, linked by flag chips. */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --sunk:#e9edf2; --ink:#131c2b; --muted:#566275; --line:#c9d1dc;
+  --accent:#0d5c75; --accent-soft:#dff0f5; --accent-ink:#083f51;
+  --conflict:#a3261d; --conflict-soft:#fbe6e3;
+  --gap:#8a5300; --gap-soft:#fdf0d2;
+  --word:#45518a; --word-soft:#e6e9f7;
+  --ok:#1f6b45; --ok-soft:#e0f2e8;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#10151d; --surface:#18202b; --sunk:#212b38; --ink:#e7ecf3; --muted:#9aa7b9; --line:#35414f;
+  --accent:#6cc3dc; --accent-soft:#143744; --accent-ink:#bfe6f1;
+  --conflict:#ff9d93; --conflict-soft:#47201c;
+  --gap:#f2c063; --gap-soft:#40300f;
+  --word:#b3bdf2; --word-soft:#272e52;
+  --ok:#86d3a8; --ok-soft:#173526; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#10151d; --surface:#18202b; --sunk:#212b38; --ink:#e7ecf3; --muted:#9aa7b9; --line:#35414f;
+  --accent:#6cc3dc; --accent-soft:#143744; --accent-ink:#bfe6f1;
+  --conflict:#ff9d93; --conflict-soft:#47201c;
+  --gap:#f2c063; --gap-soft:#40300f;
+  --word:#b3bdf2; --word-soft:#272e52;
+  --ok:#86d3a8; --ok-soft:#173526; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;
+  padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:36px}
+h1{font-size:30px;line-height:1.15;margin:0;font-weight:700;letter-spacing:-.01em;text-wrap:balance}
+h2{font-size:21px;margin:0;font-weight:600;text-wrap:balance}
+h3{font-size:16px;margin:0;font-weight:600}
+p{margin:0}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.lede{color:var(--muted);max-width:68ch;margin-top:10px}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.mono{font-family:var(--mono);font-size:12px}
+
+/* header blocks */
+.top{display:flex;flex-direction:column;gap:18px}
+.sources{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px 24px;border-top:1px solid var(--line);padding-top:14px}
+.sources div{min-width:0;font-size:13px;color:var(--muted)}
+.sources b{color:var(--ink);font-weight:600;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted);align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+
+/* chips */
+.flag{font-family:var(--mono);font-size:11.5px;font-weight:500;padding:1px 6px;border-radius:3px;text-decoration:none;border:1px solid currentColor;white-space:nowrap}
+.sev-conflict{color:var(--conflict);background:var(--conflict-soft)}
+.sev-gap{color:var(--gap);background:var(--gap-soft)}
+.sev-word{color:var(--word);background:var(--word-soft)}
+.actor{font-size:11.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--accent-ink);background:var(--accent-soft);padding:2px 7px;border-radius:3px}
+
+/* deadlines */
+.tablebox{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
+th,td{text-align:left;padding:9px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--sunk)}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+
+/* stages */
+.stage{display:grid;grid-template-columns:150px minmax(0,1fr);gap:8px 28px;padding-top:22px;border-top:2px solid var(--ink)}
+.stage-head{display:flex;flex-direction:column;gap:6px;min-width:0}
+.stage-no{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.stage-head .scope{font-size:13px;color:var(--muted)}
+.flow{display:flex;flex-direction:column;align-items:stretch;min-width:0}
+.node{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:11px 14px;display:flex;flex-direction:column;gap:7px;max-width:640px;min-width:0}
+.node-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.step-no{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--surface);background:var(--ink);border-radius:3px;padding:1px 6px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:12.5px;color:var(--muted)}
+.due{color:var(--ink);font-weight:600;font-size:12.5px;border-left:3px solid var(--accent);padding-left:7px}
+.conn{width:2px;height:22px;background:var(--muted);margin-left:28px;position:relative;flex:none}
+.conn::after{content:"";position:absolute;left:-4px;bottom:-1px;border:5px solid transparent;border-top:7px solid var(--muted);border-bottom:0}
+.decision{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:6px;padding:11px 14px;max-width:640px;display:flex;flex-direction:column;gap:6px}
+.decision .q{font-weight:600;color:var(--accent-ink)}
+.decision .dlabel{display:flex;align-items:center;gap:8px;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;color:var(--accent-ink)}
+.decision .dlabel i{width:10px;height:10px;background:var(--accent);transform:rotate(45deg);display:inline-block}
+.branches{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;border-top:2px solid var(--muted);margin-top:22px;position:relative}
+.branches::before{content:"";position:absolute;left:28px;top:-24px;width:2px;height:22px;background:var(--muted)}
+.branch{display:flex;flex-direction:column;min-width:0;padding-top:0}
+.branch>.conn{height:16px}
+.blabel{font-size:13px;font-weight:600;background:var(--ink);color:var(--surface);padding:5px 10px;border-radius:4px;align-self:flex-start}
+.branch .node{max-width:none;padding:9px 11px;font-size:14px}
+.goto{font-size:13px;font-weight:600;padding:6px 10px;border-radius:4px;border:1.5px dashed var(--muted);color:var(--ink);align-self:flex-start}
+.goto.loop{border-color:var(--conflict);color:var(--conflict)}
+.goto.end{border-style:solid;border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
+
+/* register */
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.filters button{font:inherit;font-size:13px;font-weight:500;padding:6px 12px;border-radius:4px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.first{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.first ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:80ch}
+.group{display:flex;flex-direction:column;gap:10px}
+.group>h3{padding-top:10px;border-top:1px solid var(--line)}
+.issue{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px;display:grid;grid-template-columns:minmax(0,1fr);gap:10px;scroll-margin-top:16px}
+.issue:target{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.issue-head{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:baseline}
+.issue-head h4{margin:0;font-size:15.5px;font-weight:600;flex:1 1 260px;min-width:0}
+.sevname{font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px 24px}
+.fields div{min-width:0;font-size:14px}
+.fields b{display:block;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:2px}
+.note{font-size:13px;color:var(--muted);max-width:80ch}
+
+@media (max-width:720px){
+  h1{font-size:25px}
+  .stage{grid-template-columns:minmax(0,1fr)}
+  .conn{margin-left:20px}.branches::before{left:20px}
+}
+@media print{ .filters{display:none} body{background:#fff} .node,.issue,.branch{break-inside:avoid} }
+</style>
+</head>
+<body style="margin:0">
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Faculty of Graduate Studies · MSc, MPhil and PhD by research</div>
+      <h1>Research Degree Final Examination Workflow</h1>
+      <p class="lede">The process from panel appointment to the award of the degree, built from the four draft documents. Each step shows who acts, the deadline and the clause it comes from. Coloured codes mark points where the documents contradict each other, leave a step undefined or are worded unclearly. Select a code to jump to the detail and a suggested fix.</p>
+    </div>
+    <div class="sources">
+      <div><b>Evaluation</b>4.2.1.1 Final Evaluation and Award of Degree, v1.3 (draft)</div>
+      <div><b>Conduct</b>4.2.1.2 Conduct of the Final Examination, v1.6 (draft, Annex I of the above)</div>
+      <div><b>Guidelines</b>Guidelines for conducting the final viva in online/hybrid mode (suggested changes)</div>
+      <div><b>Form</b>Form of Addressing Examiner Comments: 4_3_10_1 and 4_3_10_2</div>
+    </div>
+    <div class="legend">
+      <span><span class="flag sev-conflict">C3</span> Conflict between documents or clauses</span>
+      <span><span class="flag sev-gap">B5</span> Step or rule missing</span>
+      <span><span class="flag sev-word">D2</span> Unclear wording or broken reference</span>
+    </div>
+    <p class="note">Read with all tracked changes accepted, which is the clean copy at the start of each file. Approval dates in both procedure documents are still blank.</p>
+  </header>
+
+  <section class="group" aria-labelledby="clock-h">
+    <h2 id="clock-h">Deadlines at a glance</h2>
+    <div class="tablebox"><table>
+      <thead><tr><th>What</th><th>Time allowed</th><th>Counted from</th><th>Source</th><th>Open issue</th></tr></thead>
+      <tbody id="clock"></tbody>
+    </table></div>
+  </section>
+
+  <section class="group" aria-labelledby="flow-h">
+    <h2 id="flow-h">Workflow</h2>
+    <div id="stages" class="group" style="gap:30px"></div>
+  </section>
+
+  <section class="group" aria-labelledby="reg-h" style="gap:18px">
+    <div>
+      <h2 id="reg-h">Ambiguities to fix</h2>
+      <p class="lede" id="counts"></p>
+    </div>
+    <div class="first">
+      <h3>Fix these eight first</h3>
+      <p class="note">Each of these leaves staff unable to tell which rule applies to a real candidate.</p>
+      <ol id="firstlist"></ol>
+    </div>
+    <div class="filters" role="group" aria-label="Filter by type">
+      <button id="f-all" aria-pressed="true" data-f="all">All</button>
+      <button id="f-conflict" aria-pressed="false" data-f="conflict">Conflicts</button>
+      <button id="f-gap" aria-pressed="false" data-f="gap">Missing steps</button>
+      <button id="f-word" aria-pressed="false" data-f="word">Unclear wording</button>
+    </div>
+    <div id="register" class="group" style="gap:26px"></div>
+  </section>
+</div>
+
+<script>
+const ISSUES = [
+ {g:"Panel appointment", items:[
+  {id:"A1",s:"conflict",t:"For MSc the Chairperson is also an examiner",
+   says:"Conduct, Composition of Panels: the Chairperson 'will not be an examiner'. Table 2.1 for MSc: 'One Internal Examiner (will play the role of the Chairperson as well)'.",
+   why:"The Chairperson is described as non-voting and not expected to have read the thesis. For MSc the same person must examine and vote.",
+   fix:"State the MSc exception in the text and say whether that person votes and reads the thesis."},
+  {id:"A2",s:"word",t:"'Internal candidates' is not defined",
+   says:"Conduct, Table 2.1 has a separate block 'For internal candidates' with all examiners external (Category 1) and, for MSc, the Research Coordinator as Chairperson.",
+   why:"The term is never defined (University staff?). The number of examiners in this case is not given, and for MSc it is unclear whether the Supervisor stays on the panel.",
+   fix:"Define the term and list the full panel for each degree in the internal-candidate case."},
+  {id:"A3",s:"word",t:"Who counts as a panel 'member'",
+   says:"Conduct, Table 2.1 lists the Research Coordinator and Supervisors as observers for MPhil/PhD, and the Supervisor without any role label for MSc. Procedure item 4 needs '3 members physically present'. Evaluation 2.2.1 needs a report 'signed by all members'.",
+   why:"It is unclear whether observers count towards the three, whether they sign the report, and whether the MSc Supervisor examines and votes on their own student.",
+   fix:"Define voting members, non-voting Chairperson and observers once, then use those terms in the quorum and signature rules."},
+  {id:"A4",s:"gap",t:"No trigger or lead time for appointing the panel",
+   says:"Evaluation 2.1.1 and 2.1.2 place appointment before submission. Conduct, Table 2.2 needs nomination, recommendation by BoS Research, BoGS and SHDC, then Senate appointment.",
+   why:"Nothing says when nomination must start or what happens if a thesis arrives before the Senate has appointed the panel.",
+   fix:"Add a trigger, for example nomination a fixed number of months before the intended submission, and say whether a thesis can be accepted while appointment is pending."}
+ ]},
+ {g:"Submission for examination", items:[
+  {id:"B1",s:"word",t:"Broken clause references and stray paragraphs",
+   says:"Evaluation: the Introduction cites publication requirements in 'clause 2.1.4' (they are in 2.1.3). The note before 2.1.6 sends MSc to 'Clause 2.2.6 onwards' (2.2 ends at 2.2.5). Clause 3.5 cites '(a) to (f) in Clause 2.3.1' (numbered 2.3.1.1 to 2.3.1.6). Footnote 1 reads 'Linked to By Law Clause' with no number. The candidacy-duration and review-period rules sit unnumbered under the publication table.",
+   why:"Readers cannot find the rule being cited, and the MSc route points to a clause that does not exist.",
+   fix:"Renumber after accepting changes, give the duration and review-period rules their own clause numbers, and fill in the By-Law clause."},
+  {id:"B2",s:"gap",t:"Publication requirement cannot be fully checked at submission",
+   says:"Evaluation 2.1.3: requirements 'must be met at the time of submission'. Yet an MSc paper 'ready for publication' must be 'acceptable to the Panel of examiners', and other refereed venues must be 'acceptable to the Panel of Examiners'.",
+   why:"The panel only judges after submission. Nobody is named to certify the requirement at submission, and nothing covers the case where the panel later rejects the paper or venue.",
+   fix:"Name who certifies at submission (the Research Coordinator already verifies indexing) and move the panel's acceptance to the pre-viva report or the viva report."},
+  {id:"B3",s:"gap",t:"Submission mechanics were deleted and not replaced",
+   says:"Guidelines: sections A and B are struck out. They held the DMS upload link, forms 4_6_1 and 4_6_2, the Turnitin full report, PDF-only rule and Course Coordinator certification of module grades.",
+   why:"Evaluation 2.1.4 names only the 'Form for Initial Submission of Thesis'. The similarity report and module certification no longer appear anywhere.",
+   fix:"Move those steps into Evaluation 2.1.4 or a separate submission guideline, and reference it."},
+  {id:"B4",s:"conflict",t:"Two different review periods for examiners",
+   says:"Evaluation 2.1.3: 'normally 02 months for MPhil/PhD and 1 month for MSc'. Conduct, Table 3.1: 'within 6 weeks' for MPhil/PhD and 'within 4 weeks' for MSc.",
+   why:"The letter to examiners and any reminder schedule need one figure. The frozen-clock rule in 2.1.7 also quotes '02 months'.",
+   fix:"Pick one period per degree and use it in both documents."},
+  {id:"B5",s:"gap",t:"No step for late or missing examiner reports",
+   says:"Neither document says what the FGS does when a report is overdue.",
+   why:"The candidate's time and the three-month viva window depend on these reports.",
+   fix:"Add a reminder date, an escalation to the Dean of FGS and a rule for replacing an examiner."}
+ ]},
+ {g:"Go-ahead for the viva (MPhil and PhD)", items:[
+  {id:"C1",s:"conflict",t:"Does the Chairperson decide or recommend?",
+   says:"Conduct, Roles and Table 3.1: the Chairperson will 'decide whether to proceed with the oral examination or otherwise'. Evaluation 2.1.7: the Chairperson 'will make a final recommendation'. The Guidelines changed 'decision' to 'recommendations'.",
+   why:"If it is a recommendation, nobody is named as the one who accepts or overrides it.",
+   fix:"Use one word. If it is a recommendation, name the authority that confirms it."},
+  {id:"C2",s:"conflict",t:"Two different routes when the viva is not recommended",
+   says:"Evaluation 2.1.7(ii): the candidate re-fills the initial submission form and resubmits. Evaluation 2.1.8, last paragraph: the FGS tells the Chairperson of BoS Research, who 'shall decide on the subsequent action' with the HoD and Supervisor.",
+   why:"With only two options in 2.1.7, 'not favourable' can only mean option (ii), whose next step is already fixed. It is unclear what the BoS Chair is deciding.",
+   fix:"Merge into one path: FGS informs the BoS Chair, HoD, Supervisor and candidate, and the candidate resubmits. Keep the BoS decision only for cases resubmission cannot cover, and list them."},
+  {id:"C3",s:"conflict",t:"The duration clock is described three ways",
+   says:"Evaluation 2.1.7: (a) evaluation time of '02 months' 'can be considered by the FGS'; (b) it runs from 'the HoD-recommended date of the initial submission' to the date the recommendation reaches the supervisor; (c) 'the clock will be frozen from the date of the initial submission to the date of the major correction informed to the student'. Evaluation 2.1.3: candidacy ends at submission and 'any remaining time ... will be discarded'. Evaluation 2.2.3: post-viva periods are 'subject to the total time duration not exceeding the maximum duration'.",
+   why:"Start date, end date, whether the freeze is automatic or discretionary, and whether it is capped at two months all differ. If remaining time is discarded at submission, there is no time left to resubmit within. It is also unclear whether the clock runs while the viva is being scheduled and during post-viva corrections, and whether fees restart.",
+   fix:"Write one rule: the clock stops on a named date, restarts on a named date, applies automatically, and state how it applies to the viva-scheduling window and the post-viva correction period. Delete 'will be discarded' or limit it to candidates who pass first time."},
+  {id:"C4",s:"gap",t:"No limit on pre-viva resubmissions",
+   says:"Evaluation 2.1.7(ii) allows resubmission 'within the maximum duration'. The one-attempt rule in 2.2.5 covers only post-viva outcomes (iii) and (iv).",
+   why:"Not stated: how many times a thesis can be sent back, whether the same examiners re-read it, whether the review period restarts, and whether the candidate is told a target date.",
+   fix:"State the number of attempts, that the same panel re-examines, the review period, and what happens if the second report is also unfavourable."},
+  {id:"C5",s:"word",t:"'Three examiners' does not match the panels",
+   says:"Conduct, Table 3.1: reports 'sent by the three examiners'. Table 2.1: PhD has three examiners (four with the optional one), MPhil has two (three with the optional one).",
+   why:"For MPhil the wording implies a report is missing.",
+   fix:"Say 'all examiners'."},
+  {id:"C6",s:"gap",t:"The MSc route before the viva is undefined",
+   says:"Evaluation, note before 2.1.6: clauses 2.1.6 to 2.1.8 apply only to MPhil/PhD, and for MSc 'respective departments shall hold' the viva and report under a clause that does not exist. Guidelines: the two-day notice applies to 'all candidates'.",
+   why:"For MSc nothing says who confirms the viva can proceed, who schedules it (2.1.8 is excluded), whether the candidate sees examiner comments beforehand, or whether 2.1.9 applies.",
+   fix:"Add a short MSc sub-procedure: who schedules, by when, what the examiners send before the viva, and which report form is used."}
+ ]},
+ {g:"Preparing for the viva", items:[
+  {id:"D1",s:"conflict",t:"Is the thesis revised before the viva or only answered?",
+   says:"Evaluation 2.1.7 removed the option 'holding the oral examination after major corrections'. Evaluation 2.1.8 asks only for a report of responses. Form 4_3_10_1 has the student certify 'I made the required changes proposed by the examiners' and the supervisor confirm they 'reviewed the revised version of the thesis' and endorse it 'for submission to the examination panel prior to the final viva'. Its table has a column for page numbers 'in the prior-viva thesis'. The Form's notes 1 and 2 talk about the 'final version of the thesis'.",
+   why:"Staff cannot tell whether a revised thesis is sent to examiners before the viva, or which version is examined on the day.",
+   fix:"Decide one model. If responses only, reword the form's declarations and column. If a revised thesis is expected, say so in 2.1.8 and say who receives it and when."},
+  {id:"D2",s:"word",t:"'At least within 03 months'",
+   says:"Evaluation 2.1.8: the Supervisor schedules the viva 'at least within 03 months of receiving the comments from the FGS'.",
+   why:"'At least' and 'within' pull in opposite directions. It is unclear whether the viva must be held or only scheduled in that time, and nothing happens if it is missed.",
+   fix:"'The viva shall be held no later than 3 months after the date the FGS sends the comments to the Supervisor', plus who acts if it is not."},
+  {id:"D3",s:"word",t:"Is the two-week preparation period a minimum or a maximum?",
+   says:"Conduct, Table 3.1: 'the student will be given a 2-week period to prepare responses'. Evaluation 2.1.8 and Guidelines: responses go to examiners at least one week before the viva.",
+   why:"Read as a minimum, the earliest viva is about three weeks after comments are released. Read as a deadline, the candidate must finish in two weeks even if the viva is months away.",
+   fix:"State it as a minimum and add the resulting earliest viva date."},
+  {id:"D4",s:"word",t:"Three different recipient lists for the response form",
+   says:"Evaluation 2.1.8: to the panel, copy to FGS and the Chairperson. Guidelines: to the examiners, copy to the Chairperson and ar-fgs@uom.lk. Form, note 3: to the panel, copy to FGS only; it also says 'Students must submit' while the Principal Supervisor sends it.",
+   why:"Small, but it decides whether the Chairperson and observers receive the responses.",
+   fix:"One sentence used in all three documents: who prepares, who signs, who sends, to whom, copied to whom."},
+  {id:"D5",s:"word",t:"Viva notice: who is told and what is sent",
+   says:"Evaluation 2.1.8: details 'must be communicated to the FGS at least two days in advance', and the sentence lists a 'venue' for an online viva. Guidelines: invite to all panel members, copy to the Chair of BoS, ar-fgs and fgs-office, at least two days prior, 'for announcement on public presentation'.",
+   why:"Recipients differ. Two days is the same deadline for the panel invite and for a public announcement that the FGS must still issue. Working or calendar days is not stated.",
+   fix:"Use the Guidelines list in both documents, specify working days, and consider a longer notice for the public session."},
+  {id:"D6",s:"conflict",t:"Fully online viva against the rule of three people physically present",
+   says:"Conduct, Procedure item 4: 'at least 3 members to be physically present'. Item 3 treats online as present only 'in relation to external examiners'. Guidelines: the viva may be 'physical, hybrid or fully online', 'as decided by the Supervisor in consultation with the Panel of Examiners', and the earlier need for Senate approval of a fully online viva is deleted.",
+   why:"A fully online viva permitted by the Guidelines breaks the Conduct document. The Guidelines call themselves 'in addition to' the Conduct document, so they cannot override it. The decision also moves from the Senate to the Supervisor, with no say stated for the Chairperson.",
+   fix:"Amend Conduct item 4 to state the quorum for each mode, and say who approves the mode (suggest the Chairperson's agreement as a minimum)."},
+  {id:"D7",s:"word",t:"Sharing and confidentiality of examiner reports",
+   says:"Evaluation 2.1.6: reports come 'under confidential cover'. Guidelines: the Supervisor and candidate receive the examiners' comments through the FGS. Conduct, Table 3.1: comments 'will be shared with all the members of the Panel ... on or before the date of the viva'.",
+   why:"Not stated: who shares the comments with the panel, whether examiner names are removed before the candidate sees them, and why the panel may receive them as late as the viva day when the candidate's responses reach examiners a week earlier.",
+   fix:"Name the FGS as sender, state whether comments are anonymised, and align the timing with the release to the candidate."}
+ ]},
+ {g:"The viva", items:[
+  {id:"E1",s:"conflict",t:"Is there a public session for MPhil?",
+   says:"Conduct, Table 3.1: the two-session format (open presentation, then closed examination) is in the PhD column only; MPhil and MSc say 'Viva is held'. Guidelines: notice is needed 'for announcement on public presentation of MPhil. and PhD. candidates'.",
+   why:"The FGS does not know whether to announce MPhil vivas or how to run them.",
+   fix:"Extend the two-session format to MPhil in Table 3.1, or remove MPhil from the Guidelines sentence. Describe the MSc format."},
+  {id:"E2",s:"word",t:"How many examiners may be absent",
+   says:"Conduct, Procedure item 5 was changed from 'one or more' examiners to 'an Examiner' who does not participate. Item 4 needs at least one external examiner present.",
+   why:"It is unclear whether only one absence is allowed, and whether consent must be obtained before the report is signed.",
+   fix:"State the maximum number absent per degree and that written consent must be attached before the report goes to the FGS."},
+  {id:"E3",s:"word",t:"Overlapping duties in an online or hybrid viva",
+   says:"Guidelines: the Supervisor as host obtains the screenshot and recording, and the Chairperson 'should ensure' both. 'Supervisors give introduction to panel of examiners about the verification and the process' is listed under the Chairperson's duties. The Supervisor keeps the recording 'to be produced at a later stage if needed'.",
+   why:"For MPhil/PhD the Supervisor is only an observer, yet introduces the process that the Conduct document gives to the Chairperson. The recording sits in a personal Zoom account with no retention period. A physical viva has no attendance record at all.",
+   fix:"Move the introduction to the Chairperson, send the recording to the FGS with a retention period, and add a signed attendance sheet for physical attendance."}
+ ]},
+ {g:"Result and corrections", items:[
+  {id:"F1",s:"conflict",t:"Two routes for the panel report",
+   says:"Evaluation 2.2.1: the Chairperson sends the result 'through the RC to the FGS, with a copy to the Chairman/BoS: Research'. Guidelines: the Chairperson emails the report directly to AR/FGS and forwards the recommendations to the candidate and Supervisor.",
+   why:"The Research Coordinator and BoS Chair are in one route and absent from the other. No deadline is given for sending the report.",
+   fix:"One route and one copy list in both documents, with a deadline in working days."},
+  {id:"F2",s:"conflict",t:"Signatures or email confirmation",
+   says:"Evaluation 2.2.1: 'a report signed by all members in the Examination panel'. Guidelines: email confirmation from all members 'or get the signature of examiners'.",
+   why:"A report backed only by emails does not meet 2.2.1 as written.",
+   fix:"Add 'or confirmed by email' to 2.2.1 and say which members must sign or confirm."},
+  {id:"F3",s:"word",t:"Outcome (i) and the 'date of final thesis submission'",
+   says:"Evaluation 2.2.2(i): award 'without any corrections/modifications with the date of final thesis submission'. Evaluation 2.2.3: 'In the case of no any corrections to the thesis student submission date consider as the thesis submission date.'",
+   why:"Neither sentence says which date is meant. The likely intent is that the initial submission date counts as the final submission date, which affects the effective date of the degree.",
+   fix:"'Where no corrections are required, the date of initial submission shall be taken as the date of final thesis submission.' Say whether a Form for Final Submission is still needed."},
+  {id:"F4",s:"conflict",t:"Outcomes (iii) and (iv) and the 'major corrections' form",
+   says:"Evaluation 2.2.2: (ii) is 'minor', (iv) is 'major', (iii) has no label but is tied to Form 4_3_10_2, titled 'only for major corrections'. The form is not mentioned under (iv).",
+   why:"If (iii) is major, the difference from (iv) is only the repeat viva, and it is unclear why the form applies to one and not the other.",
+   fix:"Label (iii), for example 'substantial corrections, no repeat viva', and state which outcomes use 4_3_10_2."},
+  {id:"F5",s:"conflict",t:"Who sends the corrected thesis after major corrections",
+   says:"Evaluation 2.2.4(b): the candidate submits the 'Form for Submission of Thesis for Re-examination' through the Supervisor, Research Coordinator, HoD and BoS Chair to the FGS. Form, note 4: 'the thesis correction with the panel of examiners ... directly sent to AR-FGS from examiners copy the supervisor'.",
+   why:"The Form's sentence cannot be parsed, and on one reading it has examiners sending material to the FGS, which is the reverse of 2.2.4(b).",
+   fix:"Rewrite note 4 to match 2.2.4(b): the candidate submits form 4_3_10_2 with the revised thesis by the normal route, the FGS sends both to the examiners, and the examiners reply to AR/FGS."},
+  {id:"F6",s:"gap",t:"Re-examination is not described",
+   says:"Evaluation 2.2.5: 'only one re-examination attempt'. Form, note 4: if examiners disagree the 'chairperson can arrange meeting and come to conclusion on accepting or not the thesis'.",
+   why:"Missing: who re-examines, how long they have, how the result is reported, the possible results, what follows a failed attempt, and whether a repeat viva under (iv) repeats the pre-viva reports and response form. The non-voting Chairperson is also given the final say.",
+   fix:"Add a re-examination clause covering examiners, time limit, report form, outcomes and the consequence of failure. Say whether (iii) followed by (iv) counts as one attempt."},
+  {id:"F7",s:"gap",t:"Outcome (v) has no procedure",
+   says:"Evaluation 2.2.2(v): 'Any other recommendations. (eg: Degree is not recommended, Downgrade to MSc. Or MPhil.)'",
+   why:"No next step, approving body, form or appeal route is given for refusing or downgrading a degree.",
+   fix:"List the permitted recommendations and add the approval path (BoS Research, BoGS, Senate) and the candidate's right of appeal."},
+  {id:"F8",s:"word",t:"Post-viva time limits",
+   says:"Evaluation 2.2.3: up to 3, 6 or 9 months 'specified by the Panel', counted to 'submission ... to the HoD ... through the Supervisor', and subject to the maximum duration. PhD was cut from 12 to 9 months in this draft.",
+   why:"The same ceiling covers minor and major corrections. The end point skips the Research Coordinator, who sits between Supervisor and HoD in the form route. No extension rule exists, and the link to the maximum duration depends on C3.",
+   fix:"Give a ceiling per outcome, fix one end point (date the HoD signs), and add an extension rule and a transition rule for candidates examined under the 12-month limit."},
+  {id:"F9",s:"gap",t:"No record that minor corrections satisfied the Supervisor",
+   says:"Evaluation 2.2.2(ii): corrections 'done to the satisfaction of the Supervisor'.",
+   why:"The FGS has nothing to check against when the final thesis arrives.",
+   fix:"Add a supervisor certification line to the Form for Final Submission, or reuse the 4_3_10 table."}
+ ]},
+ {g:"Final submission and award", items:[
+  {id:"G1",s:"conflict",t:"Final submission route is given twice, differently",
+   says:"Evaluation 2.2.4(a): through 'the Supervisor, Research Coordinator, HoD, and Chairman: BoS-Research'. Evaluation 3.1: through 'the Supervisor, Research Coordinator, and the HoD', then 3.2 has the HoD send it to the BoS Chair.",
+   why:"The same step is described in two clauses with different endpoints.",
+   fix:"Keep one description and cross-refer."},
+  {id:"G2",s:"gap",t:"The Letter of Award has no author",
+   says:"The step 'The D/PGS sends the Letter of Award with all documents to the FGS' was deleted. Evaluation 3.3 still says the FGS 'scrutinizes the Letter of Award'.",
+   why:"Nobody is now named to write the Letter of Award or to pass the documents from the BoS Chair to the FGS.",
+   fix:"Assign the letter (the BoS Chair replaces D/PGS elsewhere in the draft) or delete the reference."},
+  {id:"G3",s:"word",t:"Award steps are out of order",
+   says:"Evaluation 3.3: the FGS certifies and recommends the award to the Senate. Then 3.4 checks dues and 3.5 certifies the requirements of 2.3.1.",
+   why:"Checks appear after the recommendation they should precede. BoGS and SHDC, which recommend panels, are not mentioned for the award.",
+   fix:"Order as: check dues, certify 2.3.1, recommend through the proper bodies, Senate approval."}
+ ]},
+ {g:"Across all documents", items:[
+  {id:"X1",s:"word",t:"Role names vary",
+   says:"'Chairman/BoS: Research', 'Chairperson/BoS: Research', 'Chairman: BoS-Research', 'Chair/BoS of the Faculty'; 'Supervisor', 'Supervisor/s', 'Principal Supervisor'; 'FGS', 'AR/FGS', 'the University', 'the Registry'; 'thesis/dissertation'.",
+   why:"Evaluation 2.1.8 uses 'Chairperson' for the panel chair and 'Chairperson/BoS: Research' in the same paragraph, which is easy to misread.",
+   fix:"Add a definitions list and use 'Panel Chairperson' and 'BoS Chair' throughout."},
+  {id:"X2",s:"word",t:"Form and annex labels clash",
+   says:"Evaluation already has Annex I, II and III. The Form names 4_3_10_1 'Annex I', calls 4_3_10_2 'Annex II' in note 4 but heads it '4_3_10_2_Annex I'. The Form is titled 'Prior and Post Defense Submission' while its introduction covers only the pre-viva stage. It refers to 'the panel of confirming examiners'. The clean and marked-up copies of 4_3_10_2 have different column headings ('after the viva' and 'for the viva').",
+   why:"References such as 'Annex I' point to two different things.",
+   fix:"Refer to forms by number only, fix the 4_3_10_2 heading, and settle the column wording."},
+  {id:"X3",s:"gap",t:"No approval dates or transition rule",
+   says:"Evaluation v1.3 and Conduct v1.6 show blank BoGS and Senate approvals. Evaluation, Introduction: procedures apply to 'all research degree candidates with immediate effect'.",
+   why:"Candidates already in the process face shorter limits (PhD corrections 12 to 9 months, review 3 to 2 months) with no rule on which version applies.",
+   fix:"Add an effective date and say which version governs a candidate who submitted or was examined before it."}
+ ]}
+];
+const SEV={conflict:"Conflict",gap:"Missing",word:"Unclear"};
+const idx={}; ISSUES.forEach(g=>g.items.forEach(i=>idx[i.id]=i));
+const flag=id=>`<a class="flag sev-${idx[id].s}" href="#${id}" title="${idx[id].t}">${id}</a>`;
+const flags=a=>(a||[]).map(flag).join(" ");
+
+const CLOCK=[
+ ["Examiner reports, MPhil and PhD","6 weeks or 2 months","Examiner receives thesis","Conduct T3.1; Evaluation 2.1.3",["B4"]],
+ ["Examiner review, MSc","4 weeks or 1 month","Examiner receives thesis","Conduct T3.1; Evaluation 2.1.3",["B4"]],
+ ["Chairperson's recommendation","5 working days","Chairperson receives reports","Conduct T3.1",[]],
+ ["Candidate prepares responses","2 weeks","Comments released","Conduct T3.1",["D3"]],
+ ["Viva held","Within 3 months","Supervisor receives comments from FGS","Evaluation 2.1.8",["D2"]],
+ ["Response form to examiners","At least 1 week before","Viva date","Evaluation 2.1.8; Guidelines",["D4"]],
+ ["Viva notice and invite","At least 2 days before","Viva date","Evaluation 2.1.8; Guidelines",["D5"]],
+ ["Final or revised thesis","MSc 3, MPhil 6, PhD 9 months at most","Viva date, to submission to HoD","Evaluation 2.2.3",["F8","C3"]],
+ ["Re-examination after the viva","One attempt","","Evaluation 2.2.5",["F6"]]
+];
+document.getElementById("clock").innerHTML=CLOCK.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td>${r[2]}</td><td class="mono">${r[3]}</td><td>${flags(r[4])}</td></tr>`).join("");
+
+/* step: [actor, text, due, ref, flags]  decision: {q, ref, flags, branches:[{label, steps, goto, kind}]} */
+let n=0;
+const STAGES=[
+ {t:"Appoint the panel",scope:"All degrees. Senate appointment is required before examiners can be sent a thesis.",steps:[
+  ["Dean FGS, HoD, Dean of home faculty","Nominate the panel on the nomination form (Annex II). Chairperson: Dean of FGS with the Supervisor, HoD and BoGS. External examiners: HoD with the Supervisor(s). Internal examiner: Dean of the home faculty with the HoD. PhD has two external and one internal examiner; MPhil one of each; MSc one internal examiner who also chairs, one external and the Supervisor.","","Conduct T2.1, T2.2",["A1","A2","A3","A4"]],
+  ["BoS Research, BoGS, SHDC","Recommend the nominees. External examiners go through BoS Research, BoGS and SHDC; internal examiners through BoGS and SHDC; the Chairperson through SHDC.","","Conduct T2.2",[]],
+  ["Senate","Appoints the panel.","","Conduct T2.2",[]],
+  ["FGS","Sends details of the confirmed panel to the BoS Chair, Research Coordinator, Supervisor and the panel.","","Evaluation 2.1.2",[]]
+ ]},
+ {t:"Submit the thesis for examination",scope:"All degrees. Candidacy and fees stop on submission.",steps:[
+  ["Candidate, Research Coordinator","Confirm the publication requirement is met. MSc: one refereed full paper published or accepted, or one ready for publication. MPhil: one paper in an indexed journal or conference. PhD: two refereed publications, at least one in an indexed journal. The Research Coordinator verifies indexing.","At the time of submission","Evaluation 2.1.3",["B2"]],
+  ["Candidate","Completes the Form for Initial Submission of Thesis and sends it with the examinable copy through the Supervisor, Research Coordinator, HoD and BoS Chair to the FGS.","Any time between the minimum and maximum duration","Evaluation 2.1.4",["B1","B3"]],
+  ["FGS","Sends the thesis to the panel with a letter setting out the examination procedure, performance criteria and report format.","","Evaluation 2.1.5",[]],
+  {q:"Which degree?",ref:"Evaluation, note before 2.1.6",flags:["C6"],branches:[
+    {label:"MPhil or PhD",steps:[],goto:"Continue to stage 3"},
+    {label:"MSc",steps:[["Examiners","Review the thesis. No pre-viva reports or Chairperson's recommendation.","4 weeks or 1 month","Conduct T3.1",["B4"]]],goto:"Skip to stage 4. The department holds the viva"}
+  ]}
+ ]},
+ {t:"Examine the thesis and decide on the viva",scope:"MPhil and PhD only.",steps:[
+  ["Examiners","Each examiner sends an individual report to the FGS, under confidential cover or by email, stating whether the thesis meets the standard for the viva.","6 weeks or 2 months from receiving the thesis","Evaluation 2.1.6; Conduct T3.1",["B4","B5"]],
+  ["FGS","Forwards all reports to the Chairperson of the panel.","","Evaluation 2.1.7",[]],
+  ["Chairperson","Considers the reports and gives one recommendation to the FGS. Where examiners differ, the Chairperson makes the final recommendation.","5 working days from receiving the reports","Evaluation 2.1.7; Conduct T3.1",["C1","C5"]],
+  {q:"Chairperson's recommendation",ref:"Evaluation 2.1.7",flags:["C2"],branches:[
+    {label:"(i) Hold the viva",steps:[],goto:"Continue to stage 4"},
+    {label:"(ii) Resubmit after major corrections",steps:[
+      ["FGS","Sends the reasons to the BoS Chair with a copy to the HoD. The BoS Chair decides the next action with the HoD and Supervisor.","","Evaluation 2.1.8",["C2"]],
+      ["Candidate","Revises the thesis, re-fills the Form for Initial Submission of Thesis and resubmits by the same route. The duration clock is frozen during examination.","Within the maximum duration","Evaluation 2.1.7",["C3","C4"]]
+    ],goto:"Back to step 6",kind:"loop"}
+  ]}
+ ]},
+ {t:"Prepare for the viva",scope:"Steps 14, 15 and 17 are for MPhil and PhD only. The rest apply to all degrees.",steps:[
+  ["FGS","Sends the examiners' comments and the Chairperson's recommendation to the Supervisor and candidate, and asks the Supervisor to fix a date.","","Evaluation 2.1.8; Guidelines",["D7"]],
+  ["Candidate","Prepares a response to every comment on Form 4_3_10_1. The candidate and the Principal Supervisor both sign it.","2 weeks allowed for preparation","Conduct T3.1; Form",["D1","D3"]],
+  ["Supervisor","Agrees the date, time and mode (physical, hybrid or fully online) with the Chairperson and panel. The viva may fall outside working hours if the panel agrees.","Viva within 3 months of receiving the comments","Evaluation 2.1.8; Guidelines",["D2","D6"]],
+  ["Principal Supervisor","Emails the signed response form to the examiners, with a copy to the Chairperson and ar-fgs@uom.lk.","At least 1 week before the viva","Evaluation 2.1.8; Guidelines",["D4"]],
+  ["Supervisor","Sends the date, time, venue and, for online or hybrid, the Zoom link (as host, Pro account) to all panel members, with a copy to the BoS Chair, ar-fgs@uom.lk and fgs-office@uom.lk. The FGS announces the public presentation.","At least 2 days before the viva","Evaluation 2.1.8; Guidelines",["D5","C6"]]
+ ]},
+ {t:"Hold the viva",scope:"All degrees. Run by the Chairperson, who does not vote.",steps:[
+  ["Chairperson","Confirms attendance: at least one external examiner present (online counts) and at least three members physically present. An examiner who cannot attend must give consent to the panel's recommendation by email.","","Conduct, Procedure items 3 to 5",["D6","E2","A3"]],
+  ["Chairperson, Supervisor as host","When anyone joins online: verify the candidate's identity, keep the candidate on video, take a screenshot of participants with the meeting ID, and record the meeting.","At the start","Guidelines",["E3"]],
+  ["Candidate, panel","PhD: an open session with a presentation only and no questions, then a closed session with the panel. MPhil and MSc: 'viva is held'.","","Conduct T3.1",["E1"]],
+  ["Panel","Agrees one recommendation and completes the report: Form 4_3_7 for MPhil and PhD, Form 4_3_8 for MSc.","At the end of the examination","Conduct, Roles; Guidelines",[]]
+ ]},
+ {t:"Report the result and complete corrections",scope:"All degrees.",steps:[
+  ["Chairperson","Records the mode, Zoom details and document link in the report. Collects signatures or email confirmations from all panel members. Sends the report, screenshot and emails to AR/FGS, and the recommendation to the candidate and Supervisor.","","Evaluation 2.2.1; Guidelines",["F1","F2"]],
+  ["AR/FGS","Files everything received as one PDF in the candidate's viva report folder on the DMS.","","Guidelines",[]],
+  {q:"Panel's recommendation. The panel also sets the time allowed: at most 3 months (MSc), 6 (MPhil) or 9 (PhD) from the viva.",ref:"Evaluation 2.2.2, 2.2.3",flags:["F8","C3"],branches:[
+    {label:"(i) No corrections",steps:[],flags:["F3"],goto:"Go to stage 7"},
+    {label:"(ii) Minor corrections",steps:[["Candidate, Supervisor","Corrects the thesis to the Supervisor's satisfaction.","","Evaluation 2.2.2",["F9"]]],goto:"Go to stage 7"},
+    {label:"(iii) Corrections, thesis re-examined",steps:[["Candidate","Submits the Form for Submission of Thesis for Re-examination and Form 4_3_10_2 with the revised thesis, by the usual route. The panel re-examines the thesis without a second viva.","One attempt only","Evaluation 2.2.4(b), 2.2.5",["F4","F5","F6"]]],goto:"If accepted, go to stage 7"},
+    {label:"(iv) Major corrections, repeat viva",steps:[["Candidate","Submits the Form for Submission of Thesis for Re-examination with the revised thesis. The thesis is re-examined and the viva repeated.","One attempt only","Evaluation 2.2.4(b), 2.2.5",["F4","F6"]]],goto:"Back to stage 3",kind:"loop"},
+    {label:"(v) Any other recommendation",steps:[["Not assigned","For example, degree not recommended, or downgrade to MSc or MPhil. No procedure is given.","","Evaluation 2.2.2",["F7"]]],goto:"No defined next step",kind:"loop"}
+  ]}
+ ]},
+ {t:"Final submission and award",scope:"All degrees.",steps:[
+  ["Supervisor, AR/FGS","When the candidate is ready, the Supervisor asks AR/FGS for a final-submission folder on the DMS and AR/FGS creates it.","","Guidelines",[]],
+  ["Candidate","Completes the Form for Final Submission of Thesis and sends it with the final thesis through the Supervisor, Research Coordinator, HoD and BoS Chair to the FGS.","Within the time set by the panel","Evaluation 2.2.4(a), 3.1, 3.2",["G1"]],
+  ["FGS","Scrutinises the Letter of Award and documents, checks dues to the department, library and other divisions, and certifies the six requirements: approved programme, academic requirements, evaluations, publications, duration and fees.","","Evaluation 2.3.1, 3.3 to 3.5",["G2","G3"]],
+  ["FGS, Senate","FGS recommends the award. The Senate approves, and the candidate becomes a graduand.","","Evaluation 3.3, 3.6, 3.7",[]],
+  ["Graduand","Supplicates for the degree at the Convocation, in person or in absentia.","","Evaluation 3.8",[],"end"]
+ ]}
+];
+function node(s,small){
+  n++; s._n=n;
+  return `<div class="node"><div class="node-head"><span class="step-no">${n}</span><span class="actor">${s[0]}</span></div><p>${s[1]}</p><div class="meta">${s[2]?`<span class="due">${s[2]}</span>`:""}<span class="mono">${s[3]}</span>${flags(s[4])}</div></div>`;
+}
+const conn='<div class="conn" aria-hidden="true"></div>';
+function decision(d){
+  const b=d.branches.map(br=>{
+    const inner=br.steps.map(s=>conn+node(s)).join("");
+    const cls=br.kind==="loop"?"goto loop":"goto";
+    return `<div class="branch"><div class="conn" aria-hidden="true"></div><div class="blabel">${br.label}</div>${br.flags?`<div class="meta" style="margin-top:6px">${flags(br.flags)}</div>`:""}${inner}${conn}<div class="${cls}">${br.goto}</div></div>`;
+  }).join("");
+  return `<div class="decision"><div class="dlabel"><i></i>Decision</div><p class="q">${d.q}</p><div class="meta"><span class="mono">${d.ref}</span>${flags(d.flags)}</div></div><div class="branches">${b}</div>`;
+}
+document.getElementById("stages").innerHTML=STAGES.map((st,i)=>{
+  const parts=st.steps.map(s=>Array.isArray(s)?node(s):decision(s));
+  const last=st.steps[st.steps.length-1];
+  let tail="";
+  if(Array.isArray(last)) tail=conn+(last[5]==="end"?'<div class="goto end">Degree awarded</div>':`<div class="goto">Continue to stage ${i+2}</div>`);
+  return `<section class="stage"><div class="stage-head"><span class="stage-no">Stage ${i+1} of ${STAGES.length}</span><h3>${st.t}</h3><p class="scope">${st.scope}</p></div><div class="flow">${parts.join(conn)}${tail}</div></section>`;
+}).join("");
+
+const FIRST=["C3","D6","D1","C2","F4","F6","B4","G2"];
+document.getElementById("firstlist").innerHTML=FIRST.map(id=>`<li>${flag(id)} ${idx[id].t}</li>`).join("");
+const all=Object.values(idx), cnt=s=>all.filter(i=>i.s===s).length;
+document.getElementById("counts").textContent=`${all.length} points found: ${cnt("conflict")} conflicts, ${cnt("gap")} missing steps or rules, and ${cnt("word")} cases of unclear wording. Suggested fixes are proposals for the Faculty to decide, not statements of current policy.`;
+document.getElementById("register").innerHTML=ISSUES.map(g=>`<div class="group" data-group><h3>${g.g}</h3>${g.items.map(i=>`<article class="issue" id="${i.id}" data-sev="${i.s}"><div class="issue-head"><span class="flag sev-${i.s}">${i.id}</span><h4>${i.t}</h4><span class="sevname sev-${i.s}" style="background:none;border:0">${SEV[i.s]}</span></div><div class="fields"><div><b>What the documents say</b>${i.says}</div><div><b>Why it matters</b>${i.why}</div><div><b>Suggested fix</b>${i.fix}</div></div></article>`).join("")}</div>`).join("");
+
+function applyFilter(f){
+  document.querySelectorAll(".filters button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.f===f)));
+  document.querySelectorAll(".issue").forEach(el=>{el.hidden=!(f==="all"||el.dataset.sev===f)});
+  document.querySelectorAll("[data-group]").forEach(g=>{g.hidden=!g.querySelector(".issue:not([hidden])")});
+}
+document.querySelectorAll(".filters button").forEach(b=>b.addEventListener("click",()=>applyFilter(b.dataset.f)));
+document.addEventListener("click",e=>{const a=e.target.closest("a.flag");if(a){applyFilter("all")}});
+</script>
+</body>
+</html>
